@@ -14,6 +14,8 @@ public class WebClientConfig {
 
     @Bean
     public WebClient getWebClient() throws Exception {
+
+        // enable https client requests
         SslContext sslContext = SslContextBuilder
                 .forClient()
                 .trustManager(InsecureTrustManagerFactory.INSTANCE)

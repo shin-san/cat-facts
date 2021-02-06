@@ -6,9 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.net.ssl.SSLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class FactsToUserDetailsTransformer {
@@ -22,6 +20,7 @@ public class FactsToUserDetailsTransformer {
 
     public List<UserDetails> getUserDetails() throws Exception {
 
+        // Had to use object mapper to assist with deserializing JSON array
         ObjectMapper mapper = new ObjectMapper();
 
         // Turn list of facts into POJO
@@ -40,6 +39,7 @@ public class FactsToUserDetailsTransformer {
                 e.printStackTrace();
             }
 
+            // prepare the variables for a cleaner approach
             String userId = fact.getUser();
             assert factDetails != null;
             int userVote = factDetails.getStatus().getSentCount();
@@ -51,6 +51,7 @@ public class FactsToUserDetailsTransformer {
                 userDetailsHashMap.put(userId, new UserDetails(
                         new Name(firstName, lastName),userVote));
             } else {
+                // add the status votes into the stored votes
                 int storedUserVote = userDetailsHashMap.get(userId).getVotes();
                 userDetailsHashMap.get(userId).setVotes(storedUserVote+userVote);
             }
