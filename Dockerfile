@@ -1,6 +1,6 @@
-ARG MYAPP_IMAGE=openjdk:15-jdk-alpine
-ARG MAVEN_BUILD=maven:3.6.3-openjdk-15-slim
-#
+ARG MYAPP_IMAGE
+ARG MAVEN_BUILD
+
 # Build stage
 #
 FROM $MAVEN_BUILD AS build
