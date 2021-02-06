@@ -1,9 +1,9 @@
 ARG MYAPP_IMAGE=openjdk:15-jdk-alpine
-
+ARG MAVEN_BUILD=maven:3.6.3-openjdk-15-slim
 #
 # Build stage
 #
-FROM maven:3.6.3-openjdk-15-slim AS build
+FROM $MAVEN_BUILD AS build
 COPY src /home/app/src
 COPY pom.xml /home/app
 RUN mvn -f /home/app/pom.xml clean package
