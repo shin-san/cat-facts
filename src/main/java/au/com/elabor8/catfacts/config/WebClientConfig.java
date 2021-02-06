@@ -9,13 +9,11 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
-import javax.net.ssl.SSLException;
-
 @Configuration
 public class WebClientConfig {
 
     @Bean
-    public WebClient getWebClient() throws SSLException {
+    public WebClient getWebClient() throws Exception {
         SslContext sslContext = SslContextBuilder
                 .forClient()
                 .trustManager(InsecureTrustManagerFactory.INSTANCE)

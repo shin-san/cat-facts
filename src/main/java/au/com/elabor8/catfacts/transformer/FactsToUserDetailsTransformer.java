@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.net.ssl.SSLException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class FactsToUserDetailsTransformer {
@@ -20,24 +20,42 @@ public class FactsToUserDetailsTransformer {
         this.webClientService = webClientService;
     }
 
-    public UserDetails getUserDetails() throws Exception{
-        UserDetails userDetails = new UserDetails();
+    public List<UserDetails> getUserDetails() throws Exception {
 
         ObjectMapper mapper = new ObjectMapper();
 
-        List<Fact> factsList = Arrays.asList(mapper.readValue(webClientService.getFacts().strip(), Fact[].class));
+        // Turn list of facts into POJO
+        List<Fact> factsList = Arrays.asList(
+                mapper.readValue(webClientService.getFacts().strip(), Fact[].class));
 
+        // Create a Hash Map to store user details with userID as key
+        HashMap<String, UserDetails> userDetailsHashMap = new HashMap<>();
+
+        // Iterate through the list
         factsList.forEach(fact -> {
             FactDetails factDetails = null;
             try {
                 factDetails = webClientService.getFactDetails(fact.get_id());
-            } catch (SSLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            userDetails.setName(new Name(factDetails.getUser().getName().getFirst(),
-                    factDetails.getUser().getName().getLast()));
+
+            String userId = fact.getUser();
+            assert factDetails != null;
+            int userVote = factDetails.getStatus().getSentCount();
+            String firstName = factDetails.getUser().getName().getFirst();
+            String lastName = factDetails.getUser().getName().getLast();
+
+            // Add user details under its user ID if it does not exist
+            if (Objects.isNull(userDetailsHashMap.get(userId))) {
+                userDetailsHashMap.put(userId, new UserDetails(
+                        new Name(firstName, lastName),userVote));
+            } else {
+                int storedUserVote = userDetailsHashMap.get(userId).getVotes();
+                userDetailsHashMap.get(userId).setVotes(storedUserVote+userVote);
+            }
         });
 
-        return userDetails;
+        return new ArrayList<>(userDetailsHashMap.values());
     }
 }
