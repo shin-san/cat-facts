@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cat-facts
+spec:
+  template:
+    metadata:
+      name: cat-facts-pod
+    spec:
+      containers:
+      - name: cat-facts
+        image: cat-facts
+      restartPolicy: Never
